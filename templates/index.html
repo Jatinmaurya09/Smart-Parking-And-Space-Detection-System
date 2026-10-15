@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Smart Parking System</title>
+    <style>
+        body { font-family: Arial; background: #1a1a1a; color: #fff; padding: 30px; }
+        h1 { color: #00d4ff; }
+        .container { max-width: 900px; margin: auto; }
+        input[type=file] { padding: 10px; background: #333; color: #fff; border: none; }
+        select, button { padding: 10px 20px; background: #00d4ff; color: #000;
+                         border: none; border-radius: 5px; cursor: pointer; margin: 5px; }
+        button:hover { background: #00b8e6; }
+        .stats { display: flex; gap: 20px; margin: 20px 0; }
+        .stat { background: #333; padding: 15px 30px; border-radius: 8px; }
+        .stat .num { font-size: 32px; font-weight: bold; }
+        .total .num { color: #fff; }
+        .occ .num { color: #ff4444; }
+        .free .num { color: #44ff44; }
+        img { max-width: 100%; border-radius: 8px; margin-top: 20px; }
+        #loading { color: #ffcc00; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>🅿️ Smart Parking System</h1>
+    <p>Upload a parking lot image to detect occupancy.</p>
+
+    <input type="file" id="fileInput" accept="image/*">
+    <select id="slotsSelect">
+        <option value="slots_1.json">Parking Lot (Slot 1)</option>
+        <option value="slots_2.json">Colored Cars (Slot 2)</option>
+    </select>
+    <button onclick="processImage()">Detect</button>
+
+    <div id="loading"></div>
+
+    <div class="stats" id="stats" style="display:none;">
+        <div class="stat total">Total<br><span class="num" id="totalNum">0</span></div>
+        <div class="stat occ">Occupied<br><span class="num" id="occNum">0</span></div>
+        <div class="stat free">Available<br><span class="num" id="freeNum">0</span></div>
+    </div>
+
+    <img id="resultImg" style="display:none;">
+</div>
+
+<script>
+async function processImage() {
+    const file = document.getElementById('fileInput').files[0];
+    if (!file) { alert('Please select an image first'); return; }
+
+    const slots = document.getElementById('slotsSelect').value;
+
+    const formData = new FormData();
+    formData.append('image', file);
+    formData.append('slots', slots);
+
+    document.getElementById('loading').innerText = 'Processing...';
+    document.getElementById('stats').style.display = 'none';
+
+    try {
+        const res = await fetch('/process', { method: 'POST', body: formData });
+        const data = await res.json();
+
+        if (data.error) {
+            alert('Error: ' + data.error);
+            document.getElementById('loading').innerText = '';
+            return;
+        }
+
+        document.getElementById('totalNum').innerText = data.total;
+        document.getElementById('occNum').innerText = data.occupied;
+        document.getElementById('freeNum').innerText = data.free;
+        document.getElementById('resultImg').src = data.result_image;
+        document.getElementById('resultImg').style.display = 'block';
+        document.getElementById('stats').style.display = 'flex';
+        document.getElementById('loading').innerText = '';
+    } catch (e) {
+        alert('Network error: ' + e.message);
+        document.getElementById('loading').innerText = '';
+    }
+}
+</script>
+</body>
+</html>
