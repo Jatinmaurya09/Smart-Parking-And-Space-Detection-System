@@ -106,8 +106,3 @@ available counts along with the annotated result image.
 
 YOLO/CNN vehicle detection, automatic slot detection, temporal smoothing for
 video, mobile app/API, number-plate recognition.
-
-## Team
-
-[Student names] — Department of Computer Science and Engineering,
-Sandip University Nashik, 2026-27. Guide: [Guide name].
